@@ -5,7 +5,7 @@
 -r requirements.txt
 
 # Formatting / linting
-black>=26.0
+black>=26.5.1
 isort>=6.1
 
 # Git hook runner (see .pre-commit-config.yaml)
