@@ -6,7 +6,7 @@ mlflow
 numpy
 pandas
 pandera
-pydantic>=2.0
+pydantic>=2.13.4
 pytest
 pyyaml
 scikit-learn
