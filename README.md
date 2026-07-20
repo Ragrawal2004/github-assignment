@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Loan Approval MLOps
 
 Production-grade, config-driven MLOps pipeline for a binary loan-approval
@@ -161,3 +162,6 @@ The reorganization also fixed real bugs found during the refactor:
 4. Feature column lists were duplicated across `config.yaml`,
    `schema.yaml`, and a hardcoded list in `data_transformation.py`;
    transformation now reads columns from config once.
+=======
+# github-assignment
+>>>>>>> f03b05399b855e7d232b93098d6f8906a9b2d41e

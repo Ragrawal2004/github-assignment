@@ -1,0 +1,588 @@
+Excellent idea. The best way to learn Git and GitHub is through **practice**, not just reading commands. Here's a **real-world Git & GitHub practice assignment** that covers almost every beginner concept you'll use in DevOps, MLOps, and software development.
+
+---
+
+# 📚 Git & GitHub Practice Assignment
+
+**Level:** Beginner → Intermediate
+
+**Estimated Time:** 4–6 Hours
+
+**Total Marks:** 100
+
+**Objective:** Become comfortable using Git and GitHub in real projects.
+
+---
+
+# Part A – Concept Questions (20 Marks)
+
+### 1. What is Version Control?
+
+---
+
+### 2. Why do developers use Git?
+
+---
+
+### 3. What is GitHub?
+
+---
+
+### 4. Explain the difference between Git and GitHub.
+
+---
+
+### 5. What is a Repository?
+
+---
+
+### 6. What is a Commit?
+
+---
+
+### 7. What is Staging?
+
+---
+
+### 8. What is a Branch?
+
+---
+
+### 9. What is Merging?
+
+---
+
+### 10. What is a Merge Conflict?
+
+---
+
+# Part B – Multiple Choice Questions (15 Marks)
+
+### 1. Which command initializes Git?
+
+A. git create
+
+B. git init
+
+C. git begin
+
+D. git open
+
+---
+
+### 2. Which command stages all files?
+
+A. git upload
+
+B. git add .
+
+C. git save
+
+D. git stage
+
+---
+
+### 3. Which command creates a commit?
+
+A.
+
+```bash
+git commit -m "message"
+```
+
+B.
+
+```bash
+git save
+```
+
+C.
+
+```bash
+git version
+```
+
+D.
+
+```bash
+git upload
+```
+
+---
+
+### 4. Which command uploads changes to GitHub?
+
+A. git clone
+
+B. git push
+
+C. git commit
+
+D. git init
+
+---
+
+### 5. Which command downloads a GitHub repository?
+
+A. git clone
+
+B. git pull
+
+C. git copy
+
+D. git fetch
+
+---
+
+### 6. Which command shows modified files?
+
+A. git history
+
+B. git log
+
+C. git status
+
+D. git show
+
+---
+
+### 7. Which command creates a new branch?
+
+A.
+
+```bash
+git create branch
+```
+
+B.
+
+```bash
+git branch feature
+```
+
+C.
+
+```bash
+git new
+```
+
+D.
+
+```bash
+git branch new
+```
+
+---
+
+### 8. GitHub is
+
+A. Database
+
+B. IDE
+
+C. Cloud Repository Hosting Platform
+
+D. Programming Language
+
+---
+
+### 9. Which command switches branches?
+
+A.
+
+```bash
+git checkout branch
+```
+
+B.
+
+```bash
+git add
+```
+
+C.
+
+```bash
+git clone
+```
+
+D.
+
+```bash
+git push
+```
+
+---
+
+### 10. Which command combines two branches?
+
+A.
+
+```bash
+git merge
+```
+
+B.
+
+```bash
+git join
+```
+
+C.
+
+```bash
+git combine
+```
+
+D.
+
+```bash
+git update
+```
+
+---
+
+# Part C – Fill in the Blanks (10 Marks)
+
+1. Git stores the project history inside the ______ folder.
+
+2. GitHub stores Git ______ online.
+
+3. A saved version is called a ______.
+
+4. Before committing, files are placed in the ______ area.
+
+5. The default branch is often named ______.
+
+6. GitHub allows developers to ______ on projects.
+
+7. Git tracks every ______ made to files.
+
+8. The command to see history is ______.
+
+9. A separate development line is called a ______.
+
+10. Git is a ______ control system.
+
+---
+
+# Part D – Command Writing Practice (20 Marks)
+
+Write the exact Git command.
+
+### 1. Initialize Git.
+
+---
+
+### 2. Check project status.
+
+---
+
+### 3. Add all files.
+
+---
+
+### 4. Add only app.py.
+
+---
+
+### 5. Commit with message
+
+```
+Added login feature
+```
+
+---
+
+### 6. View commit history.
+
+---
+
+### 7. Create branch
+
+```
+feature-auth
+```
+
+---
+
+### 8. Switch to
+
+```
+feature-auth
+```
+
+---
+
+### 9. Merge
+
+```
+feature-auth
+```
+
+into
+
+```
+main
+```
+
+---
+
+### 10. Delete a branch.
+
+---
+
+### 11. Clone repository.
+
+---
+
+### 12. Push changes.
+
+---
+
+### 13. Pull latest changes.
+
+---
+
+### 14. Fetch changes.
+
+---
+
+### 15. Restore app.py.
+
+---
+
+### 16. Remove old.py.
+
+---
+
+### 17. Rename current branch to main.
+
+---
+
+### 18. Show differences.
+
+---
+
+### 19. Show remote repositories.
+
+---
+
+### 20. Add GitHub remote.
+
+---
+
+# Part E – Practical Scenarios (20 Marks)
+
+### Scenario 1
+
+You accidentally deleted
+
+```
+train.py
+```
+
+after yesterday's commit.
+
+Which command(s) can help?
+
+Explain.
+
+---
+
+### Scenario 2
+
+Your teammate pushed new code to GitHub.
+
+How do you update your local project?
+
+---
+
+### Scenario 3
+
+You want to experiment with CNN without affecting the main project.
+
+Which Git feature will you use?
+
+Why?
+
+---
+
+### Scenario 4
+
+You accidentally committed a bug.
+
+How can Git history help?
+
+---
+
+### Scenario 5
+
+You have written code but forgot to run
+
+```
+git add
+```
+
+What happens if you directly run
+
+```
+git commit
+```
+
+---
+
+### Scenario 6
+
+Your laptop crashes.
+
+How does GitHub help?
+
+---
+
+### Scenario 7
+
+Two developers modified the same line.
+
+What problem occurs?
+
+How is it solved?
+
+---
+
+### Scenario 8
+
+You cloned a repository.
+
+Now you want to upload your changes.
+
+Write the complete sequence of commands.
+
+---
+
+# Part F – Hands-on Lab (15 Marks)
+
+Create this project.
+
+```
+StudentManagement/
+│
+├── README.md
+├── app.py
+├── requirements.txt
+├── data/
+│
+└── docs/
+```
+
+Now perform the following.
+
+✔ Initialize Git
+
+✔ Commit
+
+✔ Create GitHub Repository
+
+✔ Connect Remote
+
+✔ Push
+
+✔ Create Branch
+
+```
+feature-login
+```
+
+✔ Create
+
+```
+login.py
+```
+
+✔ Commit
+
+✔ Merge
+
+✔ Push Again
+
+Write every command you use.
+
+---
+
+# Part G – Debugging Challenge (Bonus)
+
+The following commands were executed.
+
+```
+git init
+
+git add .
+
+git commit "Initial Project"
+
+git push origin main
+```
+
+Find every mistake.
+
+---
+
+```
+git clone
+
+git status
+
+git push
+```
+
+What is missing?
+
+---
+
+```
+git branch feature
+
+git merge feature
+```
+
+Why might this not work?
+
+---
+
+```
+git add .
+
+git commit -m "Done"
+
+git add README.md
+```
+
+What is wrong?
+
+---
+
+# Final Challenge (30 Marks)
+
+Without looking at notes,
+
+Write the complete Git workflow for uploading a project to GitHub.
+
+Start from an empty folder and finish when the project appears on GitHub.
+
+Include **every command** in the correct order.
+
+---
+
+# 🎯 Learning Outcomes
+
+If you can complete this assignment without help, you should be able to:
+
+* ✅ Explain Git and GitHub confidently.
+* ✅ Use the most common Git commands.
+* ✅ Create and manage repositories.
+* ✅ Work with branches.
+* ✅ Push and pull from GitHub.
+* ✅ Resolve basic workflow issues.
+* ✅ Understand the Git workflow used in DevOps and MLOps projects.
+
+This assignment mirrors the kinds of Git/GitHub tasks you'll encounter in internships, coding bootcamps, and software engineering interviews.
