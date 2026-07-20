@@ -1,6 +1,5 @@
 import os
 import sys
-import math  # Unused import (Ruff should detect this)
 
 import pandas as pd
 
@@ -11,31 +10,36 @@ from src.logger import logger
 
 class FeatureEngineering:
     """
-    Extension point for derived/engineered features.
+    Extension point for derived/engineered features, sitting between
+    DataValidation and DataTransformation in the pipeline.
+
+    The current loan-approval feature set (config/config.yaml) needs no
+    derived columns, so `transform` is an explicit identity mapping
+    today. It is still a real, wired-in pipeline stage -- reading raw
+    train/test CSVs and writing to `data/interim/` -- so that adding a
+    derived feature later (e.g. a debt-to-income bucket) means editing
+    `transform()` only; no other component or pipeline needs to change.
     """
 
     def __init__(self, configuration: Configuration = None):
         configuration = configuration or Configuration()
         self.project_config = configuration.get_config()
 
-    def transform(self,df:pd.DataFrame)->pd.DataFrame:   # <-- Bad formatting (Black)
-      temp = 100                                         # <-- Unused variable (Ruff)
-      return None                                        # <-- Will likely fail tests
+    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        # Identity transform for now -- see class docstring.
+        return df
 
     def apply(self, train_path: str, test_path: str) -> tuple[str, str]:
         try:
             logger.info("Starting feature engineering")
 
-            # Intentionally incorrect filename
-            train_df = pd.read_csv("wrong_file.csv")
-
+            train_df = pd.read_csv(train_path)
             test_df = pd.read_csv(test_path)
 
             train_df = self.transform(train_df)
             test_df = self.transform(test_df)
 
-            # Intentional typo in config attribute
-            interim_train_path = self.project_config.data.interim_train_pat
+            interim_train_path = self.project_config.data.interim_train_path
             interim_test_path = self.project_config.data.interim_test_path
 
             os.makedirs(os.path.dirname(interim_train_path), exist_ok=True)
