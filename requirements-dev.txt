@@ -6,7 +6,7 @@
 
 # Formatting / linting
 black>=26.0
-isort>=6.1
+isort>=8.0.1
 
 # Git hook runner (see .pre-commit-config.yaml)
 pre-commit>=4.6
