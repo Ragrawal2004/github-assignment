@@ -1,0 +1,48 @@
+# Virtual Environment
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+
+# Logs
+logs/
+
+# Artifacts
+artifacts/
+
+# DVC Cache
+.dvc/cache/
+
+# Ignore datasets
+data/raw/*
+data/interim/*
+data/processed/*
+
+# ...EXCEPT the actual training dataset: it's intentionally committed
+# (no DVC remote is configured yet, so `dvc pull` has nothing to pull
+# from -- without this exception, a fresh clone/CI checkout has no
+# data/raw/loan_approval.csv and every pipeline stage fails at
+# data_ingestion with FileNotFoundError). Once a DVC remote is set up,
+# this can switch to `dvc add data/raw/loan_approval.csv` + tracking
+# the resulting .dvc pointer file instead.
+!data/raw/loan_approval.csv
+
+# But keep DVC metadata files
+!data/**/*.dvc
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+# MLflow (local sqlite tracking store + artifact store)
+mlflow.db
+mlruns/
+
+# Tooling caches
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+.pytest_cache/

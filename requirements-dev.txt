@@ -1,0 +1,17 @@
+# Development/CI-only dependencies. Layered on top of requirements.txt
+# via -r so runtime packages (pandas, scikit-learn, mlflow, etc.) are
+# never listed twice -- `pip install -r requirements-dev.txt` gives you
+# everything needed to develop, lint, and test the project.
+-r requirements.txt
+
+# Formatting / linting
+black>=26.0
+isort>=6.1
+
+# Git hook runner (see .pre-commit-config.yaml)
+pre-commit>=4.6
+
+# Testing
+pytest>=8.0
+pytest-cov>=6.0
+ruff>=0.15

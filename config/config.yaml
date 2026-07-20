@@ -1,0 +1,53 @@
+data:
+  raw_data_path: data/raw/loan_approval.csv
+  train_data_path: artifacts/train.csv
+  test_data_path: artifacts/test.csv
+  interim_train_path: data/interim/train.csv
+  interim_test_path: data/interim/test.csv
+
+artifacts:
+  model_path: artifacts/model.pkl
+  preprocessor_path: artifacts/preprocessor.pkl
+  transformed_train_path: artifacts/transformed_train.pkl
+  transformed_test_path: artifacts/transformed_test.pkl
+  metrics_path: artifacts/metrics.json
+  metadata_path: artifacts/metadata.json
+  evaluation_dir: artifacts/evaluation
+
+training:
+  test_size: 0.2
+  random_state: 42
+  selection_metric: roc_auc
+  tuning:
+    search_type: grid   # grid | randomized
+    cv: 3
+    n_iter: 10           # only used when search_type is randomized
+
+registry:
+  backend: local          # local (joblib) | mlflow -- switch here, nothing else changes
+
+mlflow:
+  tracking_uri: "sqlite:///mlflow.db"   # point this at a real server URI (http://...) to use a remote tracking server
+  experiment_name: loan_approval
+  registered_model_name: loan_approval_model
+
+features:
+
+  numerical_columns:
+    - person_age
+    - person_income
+    - person_emp_exp
+    - loan_amnt
+    - loan_int_rate
+    - loan_percent_income
+    - cb_person_cred_hist_length
+    - credit_score
+
+  categorical_columns:
+    - person_gender
+    - person_education
+    - person_home_ownership
+    - loan_intent
+    - previous_loan_defaults_on_file
+
+  target_column: loan_status

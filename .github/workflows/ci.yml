@@ -1,0 +1,245 @@
+# Continuous Integration for the Loan Approval MLOps project.
+#
+# Two independent jobs run in parallel on every push/PR:
+#   - code-quality: formatting, linting, config validity, import smoke test
+#   - tests:        the pytest suite with coverage
+#
+# They're deliberately separate (not one job with many steps) so a
+# formatting failure and a test failure are never conflated in the
+# GitHub UI -- each job's red/green status tells you exactly which
+# category broke, and they can be required as distinct branch
+# protection checks.
+#
+# See the FUTURE JOBS block near the bottom for where DVC pipeline
+# validation, MLflow-backed training smoke tests, Docker builds,
+# security scanning, and deployment plug in later -- none of that is
+# implemented yet, only scaffolded.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  # Lets you trigger a run manually from the Actions tab without
+  # needing a push -- useful right after changing this file, or to
+  # re-verify main without an empty commit.
+  workflow_dispatch:
+
+# If you push twice in quick succession, cancel the older in-progress
+# run for the same branch/PR instead of letting both finish -- saves
+# CI minutes and gets you the newer result faster.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Default (and minimum) permission: this workflow only reads the repo,
+# it doesn't push commits, create releases, or comment on PRs. Set
+# broader permissions per-job later if a future job needs them (e.g. a
+# Docker-publish job would need `packages: write`), rather than
+# widening this default.
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: "3.12"
+  # Skip pip's own "a new version of pip is available" check -- it's
+  # noise in CI logs and occasionally flaky against PyPI's index.
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+
+jobs:
+  # ---------------------------------------------------------------
+  # JOB 1: Formatting, linting, and config sanity checks.
+  # No model training happens here -- this job should be fast
+  # (~1-2 minutes) and is what you want failing loudly on a typo.
+  # ---------------------------------------------------------------
+  code-quality:
+    name: Code Quality (Black · isort · Ruff · config validation)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          # setup-python's built-in pip cache, keyed off the
+          # requirements files below -- simpler than a manual
+          # actions/cache step and handles cache-key hashing for us.
+          cache: "pip"
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+
+      - name: Verify Python version
+        run: python --version
+
+      - name: Verify pip version
+        run: pip --version
+
+      - name: Install runtime dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install development dependencies
+        # requirements-dev.txt already includes requirements.txt via
+        # -r, but the explicit step above keeps the "runtime vs dev"
+        # distinction visible in the Actions log rather than hiding
+        # both installs behind one opaque step.
+        run: pip install -r requirements-dev.txt
+
+      - name: Check formatting (Black)
+        run: black --check --diff .
+
+      - name: Check import order (isort)
+        run: isort --check-only --diff .
+
+      - name: Lint (Ruff)
+        run: ruff check .
+
+      - name: Validate YAML configuration files
+        # Parses every tracked *.yml/*.yaml with PyYAML's safe_load.
+        # Catches a broken config.yaml/dvc.yaml/workflow file before
+        # it reaches a stage that would fail confusingly later
+        # (e.g. Pydantic validation errors deep inside Configuration).
+        run: |
+          python - <<'PY'
+          import pathlib
+          import sys
+
+          import yaml
+
+          failed = False
+          patterns = ("*.yml", "*.yaml")
+          skip_dirs = {".git", ".venv", "artifacts", "data", "mlruns", "dvclive"}
+
+          for pattern in patterns:
+              for path in pathlib.Path(".").rglob(pattern):
+                  if any(part in skip_dirs for part in path.parts):
+                      continue
+                  try:
+                      list(yaml.safe_load_all(path.read_text()))
+                  except yaml.YAMLError as exc:
+                      print(f"INVALID YAML: {path}: {exc}")
+                      failed = True
+
+          if failed:
+              sys.exit(1)
+          print("All YAML configuration files are valid.")
+          PY
+
+      - name: Verify project imports
+        # A cheap smoke test that every entrypoint module actually
+        # imports cleanly (catches syntax errors, circular imports,
+        # or a missing dependency) before the much more expensive
+        # pytest job spends minutes training real models.
+        run: |
+          python -c "
+          import src.components.data_ingestion
+          import src.components.data_validation
+          import src.components.data_transformation
+          import src.components.feature_engineering
+          import src.components.model_trainer
+          import src.components.model_evaluation
+          import src.models.model_factory
+          import src.models.tuner
+          import src.models.selector
+          import src.models.registry
+          import src.pipelines.train_pipeline
+          import src.pipelines.prediction_pipeline
+          import src.pipelines.batch_pipeline
+          import src.predict
+          print('All project modules imported successfully.')
+          "
+
+  # ---------------------------------------------------------------
+  # JOB 2: The pytest suite, with coverage.
+  # This genuinely trains real models (GridSearchCV over 4
+  # candidates) rather than mocking them, so it's the slow job --
+  # budget accordingly. See pytest.ini for the `slow`/`integration`
+  # markers if you want to split this into a fast/slow matrix later.
+  # ---------------------------------------------------------------
+  tests:
+    name: Tests (pytest + coverage)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+
+      - name: Install runtime dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install development dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Run test suite with coverage
+        # testpaths/addopts/coverage config all live in pytest.ini --
+        # nothing to repeat here, which is the point of keeping that
+        # config in the repo instead of inlined into the workflow.
+        run: pytest
+
+      - name: Upload coverage report
+        # Keeps the coverage.xml (written by pytest.ini's
+        # --cov-report=xml) as a downloadable build artifact, so it's
+        # inspectable from the Actions run even without a Codecov/etc
+        # integration wired up yet.
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
+          retention-days: 14
+
+  # =================================================================
+  # FUTURE JOBS (not implemented yet -- scaffolding only)
+  #
+  # Each of these becomes its own `jobs.<name>:` entry, following the
+  # same pattern as code-quality/tests above (checkout -> setup-python
+  # w/ cache -> install deps -> run). None of them need code-quality
+  # or tests to finish first unless noted, so add `needs: [...]` only
+  # where there's a genuine dependency.
+  #
+  # dvc-pipeline:
+  #   Runs `dvc repro` (or `dvc repro --dry` for a faster check) against
+  #   a cached/pulled DVC remote, to catch a broken dvc.yaml stage
+  #   before it reaches main. Needs DVC remote credentials as repo
+  #   secrets once a remote is configured (currently local-only).
+  #
+  # mlflow-smoke-test:
+  #   Points MLFLOW_TRACKING_URI at a throwaway SQLite/file store (or a
+  #   staging MLflow server) and runs one short training pass with
+  #   registry.backend: mlflow, asserting a run + model version got
+  #   created. Distinct from the `tests` job's test_mlflow_registry.py,
+  #   which already covers this at the unit level -- this would be an
+  #   end-to-end check against a real configured tracking server.
+  #
+  # docker-build:
+  #   `docker build` the (not yet written) Dockerfile and run a
+  #   container smoke test (e.g. hit a health endpoint once FastAPI is
+  #   added). Needs: [code-quality, tests].
+  #
+  # security-scan:
+  #   Dependency vulnerability scanning (e.g. pip-audit or Trivy) and
+  #   secret scanning. Independent of the other jobs; can run in
+  #   parallel with everything above.
+  #
+  # deploy:
+  #   Pushes the built image and triggers deployment. Needs:
+  #   [docker-build, security-scan]. Gated to `main` only via
+  #   `if: github.ref == 'refs/heads/main'`, and should use a GitHub
+  #   Environment for manual approval before anything production-facing.
+  # =================================================================

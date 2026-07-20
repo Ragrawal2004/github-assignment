@@ -1,0 +1,94 @@
+stages:
+
+  data_ingestion:
+    cmd: python -m scripts.run_data_ingestion
+    deps:
+    - src/components/data_ingestion.py
+    - data/raw/loan_approval.csv
+    params:
+    - config/config.yaml:
+      - data.raw_data_path
+      - training.test_size
+      - training.random_state
+    outs:
+    - artifacts/train.csv
+    - artifacts/test.csv
+
+  data_validation:
+    cmd: python -m scripts.run_data_validation
+    deps:
+    - src/components/data_validation.py
+    - src/schemas/loan_schema.py
+    - artifacts/train.csv
+    params:
+    - config/config.yaml:
+      - features.target_column
+
+  data_transformation:
+    cmd: python -m scripts.run_data_transformation
+    deps:
+    - src/components/feature_engineering.py
+    - src/components/data_transformation.py
+    - artifacts/train.csv
+    - artifacts/test.csv
+    params:
+    - config/config.yaml:
+      - features.numerical_columns
+      - features.categorical_columns
+      - features.target_column
+    outs:
+    - data/interim/train.csv
+    - data/interim/test.csv
+    - artifacts/preprocessor.pkl
+    - artifacts/transformed_train.pkl
+    - artifacts/transformed_test.pkl
+
+  model_training:
+    cmd: python -m scripts.run_model_training
+    deps:
+    - src/components/model_trainer.py
+    - src/models/model_factory.py
+    - src/models/tuner.py
+    - src/models/selector.py
+    - src/models/registry.py
+    - config/model_params.yaml
+    - artifacts/transformed_train.pkl
+    - artifacts/transformed_test.pkl
+    params:
+    - config/config.yaml:
+      - training.selection_metric
+      - training.tuning
+      - registry.backend
+    outs:
+    - artifacts/model.pkl
+    metrics:
+    - artifacts/metrics.json:
+        cache: false
+    plots:
+    - dvclive/plots
+
+  model_evaluation:
+    cmd: python -m scripts.run_model_evaluation
+    deps:
+    - src/components/model_evaluation.py
+    - artifacts/model.pkl
+    - artifacts/preprocessor.pkl
+    - data/interim/test.csv
+    metrics:
+    - artifacts/evaluation/evaluation.json:
+        cache: false
+    plots:
+    - artifacts/evaluation/confusion_matrix.png
+    - artifacts/evaluation/roc_curve.png
+metrics:
+- dvclive/metrics.json
+plots:
+- dvclive/plots/metrics:
+    x: step
+- dvclive/plots/sklearn/confusion_matrix.json:
+    template: confusion
+    x: actual
+    y: predicted
+    title: Confusion Matrix
+    x_label: True Label
+    y_label: Predicted Label

@@ -1,0 +1,33 @@
+# Automatic dependency-update PRs. Three ecosystems are relevant to
+# this repo right now:
+#   - pip: requirements.txt / requirements-dev.txt
+#   - github-actions: the actions/* versions pinned in ci.yml
+#   - pre-commit: the `rev:` pins in .pre-commit-config.yaml
+# All three drift out of date the same way a lockfile does, so they're
+# all covered rather than just the Python packages.
+
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "ci"
+
+  - package-ecosystem: "pre-commit"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "pre-commit"

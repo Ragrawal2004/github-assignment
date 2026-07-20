@@ -1,0 +1,62 @@
+# Pre-commit hook configuration. Install with:
+#   pip install -r requirements-dev.txt
+#   pre-commit install
+#
+# After that, every `git commit` runs these automatically against the
+# staged files. Run `pre-commit run --all-files` to check the whole
+# repo on demand (e.g. right after adding this file, or in CI -- see
+# .github/workflows/ci.yml, which runs the same tools directly rather
+# than through pre-commit so failures show up as separate, clearly
+# attributed steps).
+
+repos:
+  # General-purpose hygiene checks. Cheap, fast, catch the kind of
+  # mistake that's annoying to review around (trailing whitespace,
+  # accidentally committing a merge-conflict marker, a 200MB CSV).
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+        # dvc.yaml and .pre-commit-config.yaml itself use anchors/multi-doc
+        # features that are still valid YAML; this hook parses correctly
+        # either way, no args needed.
+      - id: check-json
+      - id: check-added-large-files
+        # Raised from the 500KB default: data/raw/loan_approval.csv is a
+        # legitimate, intentionally-committed ~3.5MB dataset for this
+        # project. 10MB still catches an accidental model/artifact commit
+        # (artifacts/ is gitignored, but this is the safety net).
+        args: ["--maxkb=10000"]
+      - id: check-merge-conflict
+      - id: requirements-txt-fixer
+        # Normalizes requirements*.txt (sorts, dedupes). Runs against
+        # both requirements.txt and requirements-dev.txt automatically.
+
+  # Import sorting. Runs BEFORE black below -- isort can reformat lines
+  # in ways black then needs to re-wrap, but not vice versa.
+  - repo: https://github.com/pycqa/isort
+    rev: 6.1.0
+    hooks:
+      - id: isort
+        name: isort (python)
+
+  # Code formatting. Using the official mypyc-accelerated mirror
+  # (psf/black-pre-commit-mirror) instead of psf/black directly -- same
+  # tool, ~2x faster hook installation/runs, no behavior difference.
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 26.5.1
+    hooks:
+      - id: black
+        language_version: python3.12
+
+  # Linting. Deliberately configured (see pyproject.toml) to NOT sort
+  # imports itself -- isort above already owns that, and running both
+  # with import-sorting enabled made them repeatedly re-flip each
+  # other's output.
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.22
+    hooks:
+      - id: ruff-check
+        args: ["--fix"]

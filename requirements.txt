@@ -1,0 +1,13 @@
+dvc
+dvclive
+joblib
+matplotlib
+mlflow
+numpy
+pandas
+pandera
+pydantic>=2.0
+pytest
+pyyaml
+scikit-learn
+xgboost

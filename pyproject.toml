@@ -1,0 +1,49 @@
+# Tool configuration only -- this project isn't packaged/published to
+# PyPI (it ships as a Docker image per the roadmap), so there's no
+# [build-system]/[project] table here, just the config every dev tool
+# below reads from pyproject.toml by convention.
+
+[tool.black]
+line-length = 88
+target-version = ["py312"]
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"          # makes isort's output agree with black's, instead of the two fighting each other
+line_length = 88
+known_first_party = ["src", "scripts"]
+skip = [".venv", "artifacts", "data", "mlruns"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+src = ["src", "scripts", "tests"]
+extend-exclude = ["artifacts", "data", "mlruns", "dvclive", "notebooks"]
+
+[tool.ruff.lint]
+# E/F: pyflakes+pycodestyle core correctness rules
+# UP:  pyupgrade -- flags old-style syntax for the Python version this project targets
+# B:   flake8-bugbear -- common correctness footguns (mutable defaults, broad excepts, etc.)
+# SIM: flake8-simplify -- readability, not correctness; safe to ignore per-line with `# noqa` if it disagrees with a deliberate choice
+#
+# Deliberately NOT selecting "I" (import sorting): isort already owns
+# that job as its own pre-commit hook/CI step. Enabling ruff's import
+# rule too made the two tools disagree on formatting and repeatedly
+# re-flip each other's fixes.
+select = ["E", "F", "UP", "B", "SIM"]
+ignore = [
+    "E501",  # line length -- black already enforces this; ruff's E501 would just be a second, less accurate opinion
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B"]  # test fixtures/mocks legitimately trip a few bugbear rules (e.g. unused loop vars in parametrize)
+
+[tool.coverage.run]
+source = ["src"]
+omit = ["*/__init__.py"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+]
