@@ -37,7 +37,7 @@ repos:
   # Import sorting. Runs BEFORE black below -- isort can reformat lines
   # in ways black then needs to re-wrap, but not vice versa.
   - repo: https://github.com/pycqa/isort
-    rev: 6.1.0
+    rev: 8.0.1
     hooks:
       - id: isort
         name: isort (python)
